@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SVG Font to Paths Converter</title>
+    <meta charset="UTF-8">
+    <link type="text/css" rel="stylesheet" href="ss.css" />
+
+    <script src="zip.js/zip.js"></script>
+    <script src="zip.js/zip-fs.js"></script>
+    <script src="zip.js/deflate.js"></script>
+
+    <script src="converter.js"></script>
+</head>
+<body>
+    <div id="header">Convert SVG Fonts to Paths</div>
+    <div id="content">
+        <div id="box">
+            <p>Choose a set of characters and an SVG file containing a font and convert it to a .sprite2 file to import into Scratch with a costume for every character or a .zip file containing an SVG for every character that can be imported individually.</p>
+            <p>A .sprite2 file is a zip archive containing numbered SVGs and a "sprite.json" file. When imported into Scratch, it also has a "advx" variable that says how many steps to move forward from the start of one character to another when the size is 100% so that they don't overlap.</p>
+            <p>The .zip contains an individual SVG for each character, named like "asterisk.svg" or "a.svg" or "ampersand.svg". They can also be imported into Scratch individually, or into existing costumes.</p>
+            <p>To convert a font file(.ttf, .dfont, etc.) to an SVG font file(.svg), try a different web-based tool like <a href="https://onlinefontconverter.com/">Online Font Converter</a>.</p>
+            <div id="controls">
+                <div class="control">
+                    Type the charset you want to convert to paths<br>
+                    <input type="text" id="charset" inputmode="verbatim" value="!&#x22;#$%&#x26;'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~"/><br>
+                </div>
+                <div class="control">
+                    Load an SVG font file<br>
+                    <input type="file" id="input-file" accept=".svg" onchange="parseFontFile(this.files[0])" /><br>
+                </div>
+                <div class="control">
+                    Save as a .sprite2 or a .zip file<br>
+                    <input type="button" id="save-sprite2" value="save .sprite2" onclick="saveSprite2();" />
+                    <input type="button" id="save-zip" value="save .zip" onclick="saveZip();" /><br>
+                </div>
+            </div>
+            <a id="download" download="" href=""></a>
+        </div>
+        <span id="footer">Source code available on <a href="https://github.com/Zaerospi/svg-font-to-paths">Github.</a><br>Credit to <a href="http://gildas-lormeau.github.io/zip.js/">zip.js</a>.</span>
+    </div>
+</body>
+</html>

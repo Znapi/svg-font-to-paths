@@ -83,8 +83,18 @@ function saveSprite2() {
 function saveZip() {
     if(isReady()) {
         var zipArchive = new zip.fs.FS();
-        for(var i = 0; i < parsedGlyphs.length; i++)
-            zipArchive.root.addText(parsedGlyphs[i].name + ".svg", parsedGlyphs[i].content);
+        var uppercaseArchive = zipArchive.root.addDirectory("uppercase");
+        var lowercaseArchive = zipArchive.root.addDirectory("lowercase");
+        for(var i = 0; i < parsedGlyphs.length; i++) {
+            if(parsedGlyphs[i].name.length === 1) {
+                if(parsedGlyphs[i].name[0].match(/[a-z]/))
+                    lowercaseArchive.addText(parsedGlyphs[i].name + ".svg", parsedGlyphs[i].content);
+                else /*if(parsedGlyphs[i].name[0].match(/[A-Z]/))*/
+                    uppercaseArchive.addText(parsedGlyphs[i].name + ".svg", parsedGlyphs[i].content);
+            }
+            else
+                zipArchive.root.addText(parsedGlyphs[i].name + ".svg", parsedGlyphs[i].content);
+        }
         zipArchive.exportData64URI(function(a) {
             downloadElement.href = a;
             downloadElement.download = fontName + "-svgs.zip";

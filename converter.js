@@ -1,31 +1,120 @@
-var charsetElement, fileSelectElement, downloadElement;
+var downloadElement, feedbackElement;
 
 var parser = new DOMParser();
 var reader = new FileReader();
 
 var charset;
+var size;
+var file;
 
 var fontName;
 var advx, advy;
 var parsedGlyphs = [];
-var scale = 0.008;
 
-function makeSVG(name, unicode, d, transX) {
+/* inputs */
+
+var feedback=function(){};
+var resetFeedback=function(){};
+
+window.onload = function() {
+    zip.useWebWorkers = false; // waterfox complained that webworkers were insecure
+
+    charset = document.getElementById("charset").value;
+    size = document.getElementById("scale").value;
+    file = document.getElementById("input-file").files[0];
+
+    downloadElement = document.getElementById("download");
+    feedbackElement = document.getElementById("feedback");
+
+    feedback = function(str){feedbackElement.innerHTML=str+"<br>"};
+    resetFeedback = function(){feedbackElement.innerHTML=""};
+};
+
+function updateCharset(newValue) {
+    charset = newValue;
+    tryParsingFontFile();
+}
+
+function updateSize(newValue) {
+    size = newValue;
+    console.log("size: "+size);
+    tryParsingFontFile();
+}
+
+function updateFile(newValue) {
+    file = newValue;
+    tryParsingFontFile();
+}
+
+
+/* parsing */
+
+function makeSVG(name, unicode, d, transX, transY) {
     return {
         name: name,
         unicode: unicode,
         content: '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n'
-                +'\t<path transform="scale('+scale+', -'+scale+') translate('+transX+', 0)"'
+                +'\t<path transform="scale('+size+', -'+size+') translate('+transX+','+transY+')"'
                 +'d="'+d+'" />\n'
                 +'</svg>'
     }
 }
 
-var parseFontFile = function() {alert("The page must completely load first")};
+function tryParsingFontFile() {
+    if(charset!==undefined && size!==undefined) {
+        if(charset.length!==0) {
+            if(size!=0) {
+                resetFeedback();
+                if(file!==undefined) {
+                    parsedGlyphs = [{name:'space', unicode:' ', content:'<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>'}];
+
+                    reader.onload = function() {
+                        var svg = parser.parseFromString(reader.result, "image/svg+xml");
+
+                        // make a TreeWalker for the <font> elements
+                        var tree = svg.createTreeWalker(svg, NodeFilter.ELEMENT_NODE,
+                            {
+                                acceptNode: function(node) {
+                                    if(node.nodeName == "font")
+                                        return NodeFilter.FILTER_ACCEPT;
+                                    else
+                                        return NodeFilter.FILTER_SKIP;
+                                }
+                            },
+                        false);
+
+                        // for each <font>, go through each <glyph> element
+                        var efont = tree.nextNode();
+                        while(efont !== null) {
+                            fontName = efont.id;
+                            advx = efont.getAttribute("horiz-adv-x");
+
+                            for(var node = efont.firstChild; node !== null; node = node.nextSibling) {
+                                if(node.nodeName == "glyph") {
+                                    if(charset.contains(node.getAttribute("unicode")))
+                                        parsedGlyphs.push(makeSVG(node.getAttribute("glyph-name"), node.getAttribute("unicode"), node.getAttribute("d"), size*advx/2, -820));
+                                }
+                            }
+
+                            efont = tree.nextNode();
+                        }
+                    };
+                    reader.readAsBinaryString(file);
+                }
+            }
+            else
+                feedback("Size field cannot be zero.");
+        }
+        else
+            feedback("Charset field cannot be empty.")
+    }
+};
+
+/* saving */
 
 function isReady() {
     if(parsedGlyphs.length == 0) {
-        alert("You must load an input file first.");
+        alert("You must complete the other fields first.");
         return false;
     }
     else
@@ -40,7 +129,7 @@ function saveSprite2() {
             +'\t"objName": "'+fontName+'",\n'
       	    +'\t"variables": [{\n'
             +'\t\t"name": "advx",\n'
-            +'\t\t"value": '+advx*scale+',\n'
+            +'\t\t"value": '+advx*size+',\n'
             +'\t\t"isPersistent": false\n'
             +'\t}],\n'
       	    +'\t"costumes": [\n';
@@ -102,55 +191,3 @@ function saveZip() {
         });
     }
 }
-
-window.onload = function() {
-    zip.useWebWorkers = false; // waterfox complained that webworkers were insecure
-
-    charsetElement = document.getElementById("charset");
-    fileSelectElement = document.getElementById("input-file");
-
-    downloadElement = document.getElementById("download");
-
-    parseFontFile = function(file) {
-        parsedGlyphs = [];
-        charset = charsetElement.value;
-        if(charset == "") {
-            alert("You must specify a charset first.");
-            return;
-        }
-
-        reader.onload = function() {
-            var svg = parser.parseFromString(reader.result, "image/svg+xml");
-
-            // make a TreeWalker for the <font> elements
-            var tree = svg.createTreeWalker(svg, NodeFilter.ELEMENT_NODE,
-                {
-                    acceptNode: function(node) {
-                        if(node.nodeName == "font")
-                            return NodeFilter.FILTER_ACCEPT;
-                        else
-                            return NodeFilter.FILTER_SKIP;
-                    }
-                },
-            false);
-
-            // for each <font>, go through each <glyph> element
-            var efont = tree.nextNode();
-            while(efont !== null) {
-                fontName = efont.id;
-                advx = efont.getAttribute("horiz-adv-x");
-
-                for(var node = efont.firstChild; node !== null; node = node.nextSibling) {
-                    if(node.nodeName == "glyph") {
-                        if(charset.contains(node.getAttribute("unicode")))
-                            parsedGlyphs.push(makeSVG(node.getAttribute("glyph-name"), node.getAttribute("unicode"), node.getAttribute("d"), scale*advx/2));
-                    }
-                }
-
-                efont = tree.nextNode();
-            }
-        };
-        // read the font file, and call reader.onload()
-        reader.readAsBinaryString(file);
-    }
-};

@@ -21,13 +21,18 @@
             <p>To convert a font file(.ttf, .dfont, etc.) to an SVG font file(.svg), try a different web-based tool like <a href="https://onlinefontconverter.com/">Online Font Converter</a>.</p>
             <div id="controls">
                 <div class="control">
-                    Type the charset you want to convert to paths<br>
-                    <input type="text" id="charset" inputmode="verbatim" value="!&#x22;#$%&#x26;'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~"/><br>
+                    Type the charset you want to convert to SVG paths<br>
+                    <input type="text" id="charset" inputmode="verbatim" value="!&#x22;#$%&#x26;'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~" onchange="updateCharset(this.value)"/><br>
+                </div>
+                <div class="control">
+                    Set the size of the outputted SVGs<br>
+                    <input type="number" id="scale" min="0" max="10" step=".001" value=".01" onchange="updateSize(this.value)"/><br>
                 </div>
                 <div class="control">
                     Load an SVG font file<br>
-                    <input type="file" id="input-file" accept=".svg" onchange="parseFontFile(this.files[0])" /><br>
+                    <input type="file" id="input-file" accept=".svg" onchange="updateFile(this.files[0])" /><br>
                 </div>
+                <div id="feedback"></div>
                 <div class="control">
                     Save as a .sprite2 or a .zip file<br>
                     <input type="button" id="save-sprite2" value="save .sprite2" onclick="saveSprite2();" />

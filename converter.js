@@ -54,7 +54,7 @@ function makeSVG(name, unicode, d, transX, transY) {
         name: name,
         unicode: unicode,
         content: '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n'
-                +'\t<path transform="scale('+size+', -'+size+') translate('+transX+','+transY+')"'
+                +'\t<path transform="scale('+size+', -'+size+') translate('+transX+','+transY+')" '
                 +'d="'+d+'" />\n'
                 +'</svg>'
     }

@@ -14,7 +14,7 @@ var parsedGlyphs = [];
 /* inputs */
 
 var feedback=function(){};
-var resetFeedback=function(){};
+var preview=function(){};
 
 window.onload = function() {
     zip.useWebWorkers = false; // waterfox complained that webworkers were insecure
@@ -26,8 +26,8 @@ window.onload = function() {
     downloadElement = document.getElementById("download");
     feedbackElement = document.getElementById("feedback");
 
-    feedback = function(str){feedbackElement.innerHTML=str+"<br>"};
-    resetFeedback = function(){feedbackElement.innerHTML=""};
+    feedback = function(str){console.log("FEEDBACK: "+str); feedbackElement.innerHTML= '<span id="warning">'+str+'</span><br>'};
+    preview = function(){feedbackElement.innerHTML= '<span id="preview">Preview:<br>'+'width/advx: '+advx+'<br>height/advy: '+advy+'</span><br>'};
 };
 
 function updateCharset(newValue) {
@@ -54,7 +54,7 @@ function makeSVG(name, unicode, d, transX, transY) {
         name: name,
         unicode: unicode,
         content: '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">\n'
-                +'\t<path transform="scale('+size+', -'+size+') translate('+transX+','+transY+')" '
+                +'\t<path transform="scale(0'+size+', -0'+size+') translate(0, '+transY+')" '
                 +'d="'+d+'" />\n'
                 +'</svg>'
     }
@@ -64,7 +64,6 @@ function tryParsingFontFile() {
     if(charset!==undefined && size!==undefined) {
         if(charset.length!==0) {
             if(size!=0) {
-                resetFeedback();
                 if(file!==undefined) {
                     parsedGlyphs = [{name:'space', unicode:' ', content:'<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>'}];
 
@@ -83,21 +82,32 @@ function tryParsingFontFile() {
                             },
                         false);
 
-                        // for each <font>, go through each <glyph> element
+                        // go through the tree of <font>s
                         var efont = tree.nextNode();
                         while(efont !== null) {
                             fontName = efont.id;
                             advx = efont.getAttribute("horiz-adv-x");
 
+                            // look for <font-face> element
+                            for(var node = efont.firstChild; node !== null; node = node.nextSibling) {
+                                if(node.nodeName == "font-face") {
+                                    advy = -node.getAttribute("ascent");
+                                    break;
+                                }
+                            }
+                            if(node===null) {feedback("ERROR: No <font-face> attribute found in font "+fontName+"."); return;}//I would like this to be able to continue, but this message just gets overwritten
+                            // go through each <font> element
                             for(var node = efont.firstChild; node !== null; node = node.nextSibling) {
                                 if(node.nodeName == "glyph") {
                                     if(charset.contains(node.getAttribute("unicode")))
-                                        parsedGlyphs.push(makeSVG(node.getAttribute("glyph-name"), node.getAttribute("unicode"), node.getAttribute("d"), size*advx/2, -820));
+                                        parsedGlyphs.push(makeSVG(node.getAttribute("glyph-name"), node.getAttribute("unicode"), node.getAttribute("d"), advx, advy));
                                 }
                             }
 
                             efont = tree.nextNode();
                         }
+                        advx*=size; advy*=size;
+                        preview(parsedGlyphs[1]);
                     };
                     reader.readAsBinaryString(file);
                 }
@@ -129,7 +139,12 @@ function saveSprite2() {
             +'\t"objName": "'+fontName+'",\n'
       	    +'\t"variables": [{\n'
             +'\t\t"name": "advx",\n'
-            +'\t\t"value": '+advx*size+',\n'
+            +'\t\t"value": '+advx+',\n'
+            +'\t\t"isPersistent": false\n'
+            +'\t},'
+      	    +'\t{\n'
+            +'\t\t"name": "advy",\n'
+            +'\t\t"value": '+advy+',\n'
             +'\t\t"isPersistent": false\n'
             +'\t}],\n'
       	    +'\t"costumes": [\n';

@@ -54,8 +54,17 @@ body {
 }
 
 #feedback {
-    color: #f55;
     background-color: lightyellow;
+}
+
+#warning {
+    color: #f55;
+}
+
+#preview {
+    font-family: monospace, sans-serif;
+    font-size: 11pt;
+    color: #111;
 }
 
 #download {

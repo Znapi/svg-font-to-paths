@@ -27,7 +27,7 @@ window.onload = function() {
     feedbackElement = document.getElementById("feedback");
 
     feedback = function(str){console.log("FEEDBACK: "+str); feedbackElement.innerHTML= '<span id="warning">'+str+'</span><br>'};
-    preview = function(){feedbackElement.innerHTML= '<span id="preview">Preview:<br>'+'width/advx: '+advx+'<br>height/advy: '+advy+'</span><br>'};
+    preview = function(){feedbackElement.innerHTML='<span id="preview">Preview:<br>'+parsedGlyphs[0].content+'<br>width/advx: '+advx+'<br>height/advy: '+advy+'</span><br>'};
 };
 
 function updateCharset(newValue) {
@@ -37,7 +37,6 @@ function updateCharset(newValue) {
 
 function updateSize(newValue) {
     size = newValue;
-    console.log("size: "+size);
     tryParsingFontFile();
 }
 
@@ -65,8 +64,7 @@ function tryParsingFontFile() {
         if(charset.length!==0) {
             if(size!=0) {
                 if(file!==undefined) {
-                    parsedGlyphs = [{name:'space', unicode:' ', content:'<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>'}];
-
+                    parsedGlyphs=[];
                     reader.onload = function() {
                         var svg = parser.parseFromString(reader.result, "image/svg+xml");
 
@@ -107,7 +105,7 @@ function tryParsingFontFile() {
                             efont = tree.nextNode();
                         }
                         advx*=size; advy*=size;
-                        preview(parsedGlyphs[1]);
+                        preview();
                     };
                     reader.readAsBinaryString(file);
                 }
@@ -148,13 +146,23 @@ function saveSprite2() {
             +'\t\t"isPersistent": false\n'
             +'\t}],\n'
       	    +'\t"costumes": [\n';
+        // include constume for space
+        zipArchive.root.addText("0.svg", '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>');
+        spriteJSON +=
+            '\t\t{\n'
+    		+'\t\t\t"costumeName": "space",\n'
+            +'\t\t\t"baseLayerID": 0,\n'
+            +'\t\t\t"bitmapResolution": 1,\n'
+    		+'\t\t\t"rotationCenterX": 0,\n'
+    		+'\t\t\t"rotationCenterY": 0\n'
+    		+'\t\t},\n';
 
         for(var i = 0; i < parsedGlyphs.length; i++) {
-            zipArchive.root.addText(i + ".svg", parsedGlyphs[i].content);
+            zipArchive.root.addText(i+1 + ".svg", parsedGlyphs[i].content);
             spriteJSON +=
                 '\t\t{\n'
         		+'\t\t\t"costumeName": "'+parsedGlyphs[i].unicode+'",\n'
-                +'\t\t\t"baseLayerID": '+i+',\n'
+                +'\t\t\t"baseLayerID": '+i+1+',\n'
                 +'\t\t\t"bitmapResolution": 1,\n'
         		+'\t\t\t"rotationCenterX": 0,\n'
         		+'\t\t\t"rotationCenterY": 0\n'
@@ -193,7 +201,7 @@ function saveZip() {
             if(parsedGlyphs[i].name.length === 1) {
                 if(parsedGlyphs[i].name[0].match(/[a-z]/))
                     lowercaseArchive.addText(parsedGlyphs[i].name + ".svg", parsedGlyphs[i].content);
-                else /*if(parsedGlyphs[i].name[0].match(/[A-Z]/))*/
+                else
                     uppercaseArchive.addText(parsedGlyphs[i].name + ".svg", parsedGlyphs[i].content);
             }
             else

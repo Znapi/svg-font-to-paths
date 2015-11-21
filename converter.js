@@ -162,7 +162,7 @@ function saveSprite2() {
             spriteJSON +=
                 '\t\t{\n'
         		+'\t\t\t"costumeName": "'+parsedGlyphs[i].unicode+'",\n'
-                +'\t\t\t"baseLayerID": '+i+1+',\n'
+                +'\t\t\t"baseLayerID": '+(i+1)+',\n'
                 +'\t\t\t"bitmapResolution": 1,\n'
         		+'\t\t\t"rotationCenterX": 0,\n'
         		+'\t\t\t"rotationCenterY": 0\n'

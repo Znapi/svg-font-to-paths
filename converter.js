@@ -150,7 +150,7 @@ function saveSprite2() {
         zipArchive.root.addText("0.svg", '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>');
         spriteJSON +=
             '\t\t{\n'
-    		+'\t\t\t"costumeName": "space",\n'
+    		+'\t\t\t"costumeName": " ",\n'
             +'\t\t\t"baseLayerID": 0,\n'
             +'\t\t\t"bitmapResolution": 1,\n'
     		+'\t\t\t"rotationCenterX": 0,\n'

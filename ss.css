@@ -32,8 +32,7 @@ body {
 }
 
 #controls {
-    margin: 2em auto auto auto;
-    padding-top: 0.5em;
+    margin: 1em auto 1em auto;
     width: 25em;
 
     border-top: solid;
@@ -45,7 +44,7 @@ body {
 }
 
 .control {
-    margin-bottom: 1em;
+    margin-top: .5em;
     width: inherit;
 }
 

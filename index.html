@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+	<head>
     <title>SVG Font to Paths Converter</title>
     <meta charset="UTF-8">
     <link type="text/css" rel="stylesheet" href="ss.css" />
@@ -10,38 +10,36 @@
     <script src="zip.js/deflate.js"></script>
 
     <script src="converter.js"></script>
-</head>
-<body>
+	</head>
+	<body>
     <div id="header">Convert SVG Fonts to Paths</div>
     <div id="content">
-        <div id="box">
-            <p>Convert <i>monospace</i> fonts in an SVG to a SPRITE2 or ZIP file containing an SVG for every glyph that you choose. Right now this tool is only designed for monospace fonts.</p>
-            <p>The SPRITE2 file can be imported into Scratch. It has a costume for every successfully converted character and `advx` and `advy` variables that tell how wide and tall each character is.</p>
-            <p>The ZIP file contains an SVG for each character, named for the character they contain, like "asterisk.svg", "lowercase/a.svg", and "uppercase/A.svg".</p>
-            <p>To convert a font file(.ttf, .dfont, etc.) to an SVG font file(.svg), try a different web-based tool like <a href="https://onlinefontconverter.com/">Online Font Converter</a>.</p>
-            <div id="controls">
-                <div class="control">
-                    Type the charset you want to convert to SVG paths<br>
-                    <input type="text" id="charset" inputmode="verbatim" value="!&#x22;#$%&#x26;'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~" onchange="updateCharset(this.value)"/><br>
-                </div>
-                <div class="control">
-                    Set the size of the outputted SVGs<br>
-                    <input type="number" id="scale" min="0" max="10" step=".001" value=".01" onchange="updateSize(this.value)"/><br>
-                </div>
-                <div class="control">
-                    Load an SVG font file<br>
-                    <input type="file" id="input-file" accept=".svg" onchange="updateFile(this.files[0])" /><br>
-                </div>
-                <div id="feedback"></div>
-                <div class="control">
-                    Save as a .sprite2 or a .zip file<br>
-                    <input type="button" id="save-sprite2" value="save .sprite2" onclick="saveSprite2();" />
-                    <input type="button" id="save-zip" value="save .zip" onclick="saveZip();" /><br>
-                </div>
-            </div>
-            <a id="download" download="" href=""></a>
+      <div id="box">
+        <p>Convert SVG font glyphs to SVGs in a SPRITE2 or ZIP file.</p>
+				<p>Visit <a href="https://scratch.mit.edu/discuss/post/1541718/">this Scratch forum post</a> for instructions.</p>
+        <div id="controls">
+          <div class="control">
+            Type the charset you want to convert to SVG paths<br>
+            <input type="text" id="charset" inputmode="verbatim" value="!&#x22;#$%&#x26;'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~" onchange="updateCharset(this.value)"/><br>
+          </div>
+          <div class="control">
+            Load an SVG font file<br>
+            <input type="file" id="input-file" accept=".svg" onchange="updateFile(this.files[0])" /><br>
+          </div>
+          <div class="control">
+            Set the size of the outputted SVGs<br>
+            <input type="number" id="scale" min="0" max="10" step=".001" value=".01" onchange="updateSize(this.value)"/><br>
+          </div>
+          <div id="feedback"></div>
+          <div class="control">
+            Save as a .sprite2 or a .zip file<br>
+            <input type="button" id="save-sprite2" value="save .sprite2" onclick="saveSprite2();" />
+            <input type="button" id="save-zip" value="save .zip" onclick="saveZip();" /><br>
+          </div>
         </div>
-        <span id="footer">Source code available on <a href="https://github.com/Znapi/svg-font-to-paths">Github</a>.<br>Credit to <a href="http://gildas-lormeau.github.io/zip.js/">zip.js</a>.</span>
+        <a id="download" download="" href=""></a>
+      </div>
+      <span id="footer">Source code available on <a href="https://github.com/Znapi/svg-font-to-paths">Github</a>.<br>Credit to <a href="http://gildas-lormeau.github.io/zip.js/">zip.js</a>.</span>
     </div>
-</body>
+	</body>
 </html>

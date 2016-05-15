@@ -97,7 +97,7 @@ function tryParsingFontFile() {
                             // go through each <font> element
                             for(var node = efont.firstChild; node !== null; node = node.nextSibling) {
                                 if(node.nodeName == "glyph") {
-                                    if(charset.contains(node.getAttribute("unicode")))
+                                    if(charset.indexOf(node.getAttribute("unicode")) > -1) // check if the glyph should be converted
                                         parsedGlyphs.push(makeSVG(node.getAttribute("glyph-name"), node.getAttribute("unicode"), node.getAttribute("d"), advx, advy));
                                 }
                             }

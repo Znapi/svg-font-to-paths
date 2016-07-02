@@ -45,6 +45,17 @@ function updateFile(newValue) {
     tryParsingFontFile();
 }
 
+function checkInputs() {
+    if(charset.length===0)
+        feedback("The \"charset\" field cannot be empty.")
+    else if(file===undefined)
+        feedback("A file hasn't been selected yet.");
+    else if(size==0)
+        feedback("The \"size\" field cannot be zero.");
+    else
+        return true;
+    return false;
+}
 
 /* parsing */
 
@@ -60,68 +71,59 @@ function makeSVG(name, unicode, d, transX, transY) {
 }
 
 function tryParsingFontFile() {
-    if(charset!==undefined && size!==undefined) {
-        if(charset.length!==0) {
-            if(size!=0) {
-                if(file!==undefined) {
-                    parsedGlyphs=[];
-                    reader.onload = function() {
-                        var svg = parser.parseFromString(reader.result, "image/svg+xml");
+    parsedGlyphs=[];
+    if(checkInputs()) {
+        reader.onload = function() {
+            var svg = parser.parseFromString(reader.result, "image/svg+xml");
 
-                        // make a TreeWalker for the <font> elements
-                        var tree = svg.createTreeWalker(svg, NodeFilter.ELEMENT_NODE,
-                            {
-                                acceptNode: function(node) {
-                                    if(node.nodeName == "font")
-                                        return NodeFilter.FILTER_ACCEPT;
-                                    else
-                                        return NodeFilter.FILTER_SKIP;
-                                }
-                            },
-                        false);
+            // make a TreeWalker for the <font> elements
+            var tree = svg.createTreeWalker(svg, NodeFilter.ELEMENT_NODE,
+                {
+                    acceptNode: function(node) {
+                        if(node.nodeName == "font")
+                            return NodeFilter.FILTER_ACCEPT;
+                        else
+                            return NodeFilter.FILTER_SKIP;
+                    }
+                },
+                false);
 
-                        // go through the tree of <font>s
-                        var efont = tree.nextNode();
-                        while(efont !== null) {
-                            fontName = efont.id;
-                            advx = efont.getAttribute("horiz-adv-x");
+            // go through the tree of <font>s
+            var efont = tree.nextNode();
+            while(efont !== null) {
+                fontName = efont.id;
+                advx = efont.getAttribute("horiz-adv-x");
 
-                            // look for <font-face> element
-                            for(var node = efont.firstChild; node !== null; node = node.nextSibling) {
-                                if(node.nodeName == "font-face") {
-                                    advy = -node.getAttribute("ascent");
-                                    break;
-                                }
-                            }
-                            if(node===null) {feedback("ERROR: No <font-face> attribute found in font "+fontName+"."); return;}//I would like this to be able to continue, but this message just gets overwritten
-                            // go through each <font> element
-                            for(var node = efont.firstChild; node !== null; node = node.nextSibling) {
-                                if(node.nodeName == "glyph") {
-                                    if(charset.indexOf(node.getAttribute("unicode")) > -1) // check if the glyph should be converted
-                                        parsedGlyphs.push(makeSVG(node.getAttribute("glyph-name"), node.getAttribute("unicode"), node.getAttribute("d"), advx, advy));
-                                }
-                            }
-
-                            efont = tree.nextNode();
-                        }
-                        advx*=size; advy*=size;
-                        preview();
-                    };
-                    reader.readAsBinaryString(file);
+                // look for <font-face> element
+                for(var node = efont.firstChild; node !== null; node = node.nextSibling) {
+                    if(node.nodeName == "font-face") {
+                        advy = -node.getAttribute("ascent");
+                        break;
+                    }
                 }
+                if(node===null) {feedback("ERROR: No <font-face> attribute found in font "+fontName+"."); return;}//I would like this to be able to continue, but this message just gets overwritten
+                // go through each <font> element
+                for(var node = efont.firstChild; node !== null; node = node.nextSibling) {
+                    if(node.nodeName == "glyph") {
+                        if(charset.indexOf(node.getAttribute("unicode")) > -1) // check if the glyph should be converted
+                            parsedGlyphs.push(makeSVG(node.getAttribute("glyph-name"), node.getAttribute("unicode"), node.getAttribute("d"), advx, advy));
+                    }
+                }
+
+                efont = tree.nextNode();
             }
-            else
-                feedback("Size field cannot be zero.");
-        }
-        else
-            feedback("Charset field cannot be empty.")
+            advx*=size; advy*=size;
+            preview();
+        };
+        reader.readAsBinaryString(file);
     }
-};
+}
 
 /* saving */
 
 function isReady() {
     if(parsedGlyphs.length == 0) {
+        checkInputs();
         alert("You must complete the other fields first.");
         return false;
     }
